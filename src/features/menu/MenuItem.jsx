@@ -1,12 +1,15 @@
 /* eslint-disable no-unused-vars */
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import Button from "../../ui/Button";
 import { formatCurrency } from "../../utils/helpers";
-import { addItem } from "../cart/cartSlice";
+import { addItem, getCart } from "../cart/cartSlice";
+import DeleteItem from "../cart/DeleteItem";
 
 function MenuItem({ pizza }) {
   const { id, name, unitPrice, ingredients, soldOut, imageUrl } = pizza;
   const dispatch = useDispatch();
+  const cart = useSelector(getCart);
+  const hasInCart = cart.some((pizza) => pizza.pizzaId === id);
 
   function handleNewItem() {
     const newItem = {
@@ -41,9 +44,13 @@ function MenuItem({ pizza }) {
             </p>
           )}
 
-          <Button onClick={handleNewItem} type="small">
-            Add to cart
-          </Button>
+          {hasInCart ? (
+            <DeleteItem pizzaId={id} />
+          ) : (
+            <Button onClick={handleNewItem} type="small">
+              Add to cart
+            </Button>
+          )}
         </div>
       </div>
     </li>
