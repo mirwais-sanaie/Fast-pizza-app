@@ -3,7 +3,10 @@ import AppLayOut from "./ui/AppLayOut";
 import HomePage from "./ui/HomePage";
 import Menu, { loader as menuLoader } from "./features/menu/Menu";
 import Cart from "./features/cart/Cart";
-import Order from "./features/order/Order";
+import Order, { loader as orderLoader } from "./features/order/Order";
+import CreateOrder, {
+  action as createOrderAction,
+} from "./features/order/CreateOrder";
 
 function App() {
   const router = createBrowserRouter([
@@ -25,7 +28,14 @@ function App() {
         },
         {
           path: "/order/new",
+          element: <CreateOrder />,
+          action: createOrderAction,
+        },
+        {
+          path: "/order/:orderId",
           element: <Order />,
+          loader: orderLoader,
+          errorElement: <Error />,
         },
       ],
     },
