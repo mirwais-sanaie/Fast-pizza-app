@@ -10,11 +10,22 @@ import {
   formatCurrency,
   formatDate,
 } from "../../utils/helpers";
+import { useEffect } from "react";
 
 function Order() {
   const order = useLoaderData();
 
-  // const fether = useFetcher();
+  const fether = useFetcher();
+
+  useEffect(
+    function () {
+      if (!fether.data && fether.state === "idle") {
+        fether.load("/menu");
+      }
+    },
+    [fether]
+  );
+  console.log(fether.data);
 
   // Everyone can search for all orders, so for privacy reasons we're gonna gonna exclude names or address, these are only for the restaurant staff
   const {
@@ -59,7 +70,15 @@ function Order() {
 
       <ul className="dive-stone-200 divide-y border-b border-t">
         {cart.map((item) => (
-          <OrderItem item={item} key={item.pizzaId} />
+          <OrderItem
+            item={item}
+            key={item.pizzaId}
+            isLoadingIngredients={fether.state === "loading"}
+            ingredients={
+              fether?.data?.find((el) => el.id === item.pizzaId).ingredients ??
+              []
+            }
+          />
         ))}
       </ul>
 
