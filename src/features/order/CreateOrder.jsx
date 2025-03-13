@@ -1,10 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
 import { Form, redirect, useActionData, useNavigation } from "react-router-dom";
 import Button from "../../ui/Button";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { clearCart, getCart, getTotalPrice } from "../cart/cartSlice";
 import { createOrder } from "../../services/apiRestaurant";
-import { getName } from "../user/userSlice";
+import { fetchAddress, getName } from "../user/userSlice";
 import { formatCurrency } from "../../utils/helpers";
 import store from "./../../store";
 import { useState } from "react";
@@ -43,14 +43,20 @@ function CreateOrder() {
   const [withPriority, setWithPriority] = useState(false);
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
+  const formErrors = useActionData();
+  const cart = useSelector(getCart);
   const userName = useSelector(getName);
   const totalCartPrice = useSelector(getTotalPrice);
   const priorityPrice = withPriority ? totalCartPrice * 0.2 : 0;
   const totalPrice = totalCartPrice + priorityPrice;
-
-  const formErrors = useActionData();
-
-  const cart = useSelector(getCart);
+  const dispatch = useDispatch();
+  const {
+    status: addressStatus,
+    position,
+    address,
+    error: errorAddresss,
+  } = useSelector((state) => state.user);
+  const isLoadingAddress = addressStatus === "loading";
 
   return (
     <div className="px-4 py-6">
@@ -81,15 +87,37 @@ function CreateOrder() {
           </div>
         </div>
 
-        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="relative mb-5 flex flex-col gap-2 sm:flex-row sm:items-center">
           <label className="sm:basis-40">Address</label>
-          <div className="grow">
+          <div className="relative grow">
             <input
-              className="input w-full"
+              className="input w-full disabled:cursor-not-allowed"
               type="text"
               name="address"
+              disabled={isLoadingAddress}
+              defaultValue={address}
               required
             />
+            {!position.latitude && !position.longitude && (
+              <span className="absolute right-1 top-[3px] md:top-[5px]">
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    dispatch(fetchAddress());
+                  }}
+                  type={"small"}
+                >
+                  Get Position
+                </Button>
+              </span>
+            )}
+          </div>
+          <div className="absolute top-10 right-0">
+            {addressStatus === "error" && (
+              <p className="mt-2 rounded-md bg-red-100 p-2 text-xs text-red-700">
+                {errorAddresss}
+              </p>
+            )}
           </div>
         </div>
 
