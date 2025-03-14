@@ -29,11 +29,11 @@ function CreateUser() {
         className="input mb-8 w-72"
       />
 
-      {/* {username !== "" && ( */}
-      <div>
-        <Button type="primary">Start ordering</Button>
-      </div>
-      {/* )} */}
+      {username !== "" && (
+        <div>
+          <Button type="primary">Start ordering</Button>
+        </div>
+      )}
     </form>
   );
 }
